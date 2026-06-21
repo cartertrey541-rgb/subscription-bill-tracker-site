@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscription Bill Tracker — Never Miss a Renewal</title>
+  <meta name="description" content="Track every subscription in one place. Get notified before you're charged. Free on Android with optional Pro upgrade." />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0f14;
+      --surface:   #111820;
+      --border:    #1e2d3d;
+      --teal:      #00c9a7;
+      --teal-dim:  #00a589;
+      --teal-glow: rgba(0,201,167,0.12);
+      --text:      #e8f0f7;
+      --muted:     #7a92a8;
+      --white:     #ffffff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 40px;
+      background: rgba(10,15,20,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .nav-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #0d2137, #1a3a52);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .nav-cta {
+      background: var(--teal);
+      color: #000;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 8px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--teal-dim); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(ellipse, rgba(0,201,167,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Animated grid lines */
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.3;
+      pointer-events: none;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 100%);
+    }
+
+    .hero-eyebrow {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .hero-app-icon {
+      width: 96px;
+      height: 96px;
+      background: linear-gradient(135deg, #0d2137 0%, #1a3a52 100%);
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      margin: 0 auto 32px;
+      position: relative;
+      box-shadow: 0 0 0 1px var(--border), 0 20px 60px rgba(0,201,167,0.15);
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      max-width: 700px;
+      margin: 0 auto 20px;
+      position: relative;
+    }
+
+    h1 span {
+      color: var(--teal);
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto 40px;
+      position: relative;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--teal);
+      color: #000;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 16px 32px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 24px rgba(0,201,167,0.25);
+    }
+    .btn-primary:hover {
+      background: var(--teal-dim);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,201,167,0.35);
+    }
+
+    .hero-note {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .hero-note strong { color: var(--teal); }
+
+    /* STAT STRIP */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .stat {
+      flex: 1;
+      max-width: 220px;
+      padding: 28px 24px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+
+    .stat-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--teal);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* FEATURES */
+    .features {
+      padding: 100px 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 60px;
+      max-width: 500px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      padding: 36px 32px;
+      transition: background 0.2s;
+    }
+    .feature-card:hover { background: #151f2a; }
+
+    .feature-icon {
+      font-size: 28px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .feature-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .feature-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* HOW IT WORKS */
+    .how {
+      padding: 100px 24px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .how-inner {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 60px;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      left: 23px;
+      top: 12px;
+      bottom: 12px;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--teal), transparent);
+    }
+
+    .step {
+      display: flex;
+      gap: 28px;
+      padding: 28px 0;
+    }
+
+    .step-num {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: 50%;
+      border: 1px solid var(--teal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--teal);
+      background: var(--bg);
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-content h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 6px;
+      padding-top: 12px;
+    }
+
+    .step-content p {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* PRO */
+    .pro {
+      padding: 100px 24px;
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .pro-card {
+      background: var(--surface);
+      border: 1px solid var(--teal);
+      border-radius: 20px;
+      padding: 56px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pro-card::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, var(--teal-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .pro-badge {
+      display: inline-block;
+      background: var(--teal-glow);
+      border: 1px solid var(--teal);
+      color: var(--teal);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
+
+    .pro-card h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      position: relative;
+    }
+
+    .pro-price {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .pro-price strong {
+      color: var(--teal);
+      font-size: 1.6rem;
+    }
+
+    .pro-features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .pro-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .pro-features li::before {
+      content: '✓';
+      color: var(--teal);
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 40px 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .footer-brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--teal); }
+
+    /* RESPONSIVE */
+    @media (max-width: 640px) {
+      nav { padding: 16px 20px; }
+      .stats { flex-wrap: wrap; }
+      .stat { min-width: 50%; border-bottom: 1px solid var(--border); }
+      .pro-card { padding: 40px 28px; }
+      .steps::before { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-brand">
+    <div class="nav-icon">💲</div>
+    Subscription Bill Tracker
+  </a>
+  <a href="https://play.google.com/store/apps/details?id=com.ridgerunner.subtrackr" class="nav-cta" target="_blank" rel="noopener">
+    Get it Free →
+  </a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">Free Android App · Ridge Runner Games</p>
+  <div class="hero-app-icon">💲</div>
+  <h1>Stop losing money to <span>forgotten subscriptions</span></h1>
+  <p class="hero-sub">One place to track every bill, renewal, and recurring charge. Know exactly what you're paying and when — before it hits your account.</p>
+  <div class="hero-actions">
+    <a href="https://play.google.com/store/apps/details?id=com.ridgerunner.subtrackr" class="btn-primary" target="_blank" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2 2 0 0 0 2.07-.14l12.34-7.13-3.43-3.43-10.98 10.7zm-1.68-21.5v19.48l10.1-9.74L1.5 2.26zM20.5 10.3l-2.82-1.63-3.8 3.33 3.8 3.8 2.84-1.64a2 2 0 0 0 0-3.86zm-18.32-7.2 10.98 10.69 3.43-3.43L2.25 2.96a2 2 0 0 0-.07.14z"/></svg>
+      Download on Google Play
+    </a>
+    <p class="hero-note">Free to download · <strong>No ads</strong> · Optional one-time Pro upgrade</p>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-number">176</div>
+    <div class="stat-label">Countries Available</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">$0</div>
+    <div class="stat-label">To Download</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">0</div>
+    <div class="stat-label">Ads. Ever.</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">1×</div>
+    <div class="stat-label">Optional Pro Upgrade</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features">
+  <p class="section-label">What it does</p>
+  <h2 class="section-title">Everything your subscriptions have been hiding from you</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="feature-icon">📋</span>
+      <div class="feature-title">All your subscriptions in one list</div>
+      <p class="feature-desc">Add Netflix, Spotify, gym memberships, software tools — anything that charges you on a schedule. See them all at a glance.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🔔</span>
+      <div class="feature-title">Renewal reminders before you're charged</div>
+      <p class="feature-desc">Get notified before your billing date so you can cancel, pause, or simply be ready — instead of getting blindsided.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">💰</span>
+      <div class="feature-title">See your real monthly spend</div>
+      <p class="feature-desc">Most people underestimate their subscription costs by 40%. See the honest total — monthly, yearly, broken down by category.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📅</span>
+      <div class="feature-title">Billing calendar view</div>
+      <p class="feature-desc">See exactly which days money goes out each month. Plan your cash flow instead of reacting to it.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🗂️</span>
+      <div class="feature-title">Organize by category</div>
+      <p class="feature-desc">Entertainment, utilities, work tools, health — sort and filter so you always know where your money is going.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🔒</span>
+      <div class="feature-title">Private by design</div>
+      <p class="feature-desc">No bank connection required. You enter your subscriptions manually — your financial data stays on your device.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="how-inner">
+    <p class="section-label">How it works</p>
+    <h2 class="section-title">Up and running in under two minutes</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h3>Download the app for free</h3>
+          <p>Available on Google Play. No account required, no email, no signup — just open and go.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h3>Add your subscriptions</h3>
+          <p>Enter each service, what it costs, and when it renews. Takes about 30 seconds per subscription.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h3>Set your reminders</h3>
+          <p>Choose how many days before each renewal you want a heads-up. The app handles the rest.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h3>Stop getting surprised by charges</h3>
+          <p>Your dashboard shows upcoming bills and your total spend. You're in control now.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRO -->
+<section class="pro">
+  <div class="pro-card">
+    <div class="pro-badge">Pro Upgrade</div>
+    <h2>Unlock everything. Once.</h2>
+    <p class="pro-price">One-time purchase — <strong>no subscription</strong></p>
+    <ul class="pro-features">
+      <li>Unlimited subscriptions (free tier has a limit)</li>
+      <li>Advanced spending reports and insights</li>
+      <li>Custom categories and colors</li>
+      <li>Export your data</li>
+      <li>Priority support from the developer</li>
+      <li>Support an indie studio from Appalachian Virginia</li>
+    </ul>
+    <a href="https://play.google.com/store/apps/details?id=com.ridgerunner.subtrackr" class="btn-primary" target="_blank" rel="noopener" style="width:100%; justify-content:center;">
+      Download Free & Upgrade In-App →
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p class="footer-brand">Built by Ridge Runner Games · Big Stone Gap, Virginia</p>
+  <div class="footer-links">
+    <a href="https://play.google.com/store/apps/details?id=com.ridgerunner.subtrackr" target="_blank" rel="noopener">Google Play</a>
+    <a href="mailto:ridgerunnergames@gmail.com">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>
